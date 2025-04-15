@@ -1,0 +1,95 @@
+/* General styles for body and page */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1db954;
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: block; /* change from flex to block */
+    height: 100vh;
+    text-align: center;
+    justify-content: center; 
+}
+
+/* Page Title Style */
+.page-title {
+    text-align: center;
+    color: #212121;
+    font-size: 2.5rem;
+    margin-top: 20px; /* Ensure it's at the top with some space */
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+    padding: 10px;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Container for title and game window */
+.container {
+    display: block;
+    max-width: 1200px;  /* Adjust this for a good responsive layout */
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Game Window Style */
+.game-window {
+    background-color: #212121;
+    width: 80%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px black;
+    margin: 0 auto;
+    margin-top: 20px; /* Space between title and game window */
+}
+
+/* Judge Section */
+.judge {
+    margin-bottom: 20px;
+}
+
+.judge h3 {
+    font-size: 24px;
+}
+
+.judge-image {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+/* Song Info Section */
+.song-info {
+    margin-bottom: 30px;
+}
+
+.song-info h2 {
+    font-size: 36px;
+}
+
+.song-info h3 {
+    font-size: 24px;
+    margin-top: 10px;
+}
+
+.song-info p {
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+/* Button Style */
+.continue-button button {
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1db954;
+    color: black;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.continue-button button:hover {
+    background-color: #1db954;
+}

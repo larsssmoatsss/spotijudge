@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotijudge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container"></div>
+        <h1 class="page-title">spotijudge</h1>
+
+        <div class="game-window">
+            <div class="grid-container">
+
+                <div class="left-column">
+                    <h2>hello there {{ username }}!!</h2>
+                    <h3>title: {{ track['track_name'] }}</h3>
+                    <h4>artist: {{ track['artist_name'] }}</h4>
+                </div>
+
+                <div class="middle-column">
+                    <p><strong>spotify genre tags:</strong> {{ track['genres'] | join(', ') }}</p>
+                    <p><strong>track popularity:</strong> {{ track['track_popularity'] }}%</p>
+                    <p><strong>track cool score:</strong> {{ track['cool_score'] }}%</p>
+                </div>
+
+                <div class="right-column">
+                    <h1>your final cool score: {{ final_score }}%</h1>
+                </div>
+            </div>
+
+            <div class="continue-button">
+                <form method="POST">
+                    <button type="submit">next track</button>
+                </form>
+            </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
