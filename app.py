@@ -27,6 +27,10 @@ app.secret_key = os.urandom(24)  # required for using sessions
 # home route, main landing page
 @app.route("/", methods=["GET", "POST"])
 def home():
+    # debug prints
+    print("Session Data:", session)
+    print("Structured Tracks in Session:", session.get("structured_tracks"))
+
     # ensure session stores the current track index
     if "track_index" not in session:
         session["track_index"] = 0  # Start at the first track
@@ -35,15 +39,25 @@ def home():
     if "structured_tracks" not in session or not session["structured_tracks"]:
         # if it's not there, or it's empty, initialize it (or handle the error)
         return "Error: No tracks available to display."
+    # debug print
+    print("Current Track Index:", session.get("track_index"))
+
 
     # get the current track data
     current_track = session.get("structured_tracks", [])[session["track_index"]]
+
+    # debug print
+    print("Current Structured Tracks:", session.get("structured_tracks"))
+
 
     # calculate the final score from the structured tracks
     total_score = 0
     for track in session.get("structured_tracks", []):
         total_score += track.get("cool_score", 0)
     final_score = round(total_score / len(session.get("structured_tracks", [])), 2) if session.get("structured_tracks") else 0
+    print("Final Score:", final_score)
+
+    print("Redirecting to track index:", session.get("track_index"))
 
     # if the user clicks "next", go to the next track
     if request.method == "POST":
@@ -51,6 +65,9 @@ def home():
         if session["track_index"] >= len(session.get("structured_tracks", [])):
             session["track_index"] = 0  # restart from the beginning
         return redirect("/")  # reload the page to show the new track
+
+    # debug print
+    print("Current Track Data:", current_track)
 
     return render_template('index.html', track=current_track, final_score=final_score, username=session.get("username"), tracks=session.get("structured_tracks", []))
 

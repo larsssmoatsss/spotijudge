@@ -1,5 +1,5 @@
 {
     "SPOTIFY_CLIENT_ID": "a712d307cde14317ae29b471400f0e53",
     "SPOTIFY_CLIENT_SECRET": "4a873bd801704dd187fa8a4380e4bb6d",
-    "SPOTIFY_REDIRECT_URI": "https://spotijudge.onrender.com/callback"
+    "SPOTIFY_REDIRECT_URI": "http://localhost:5000/callback"
 }
