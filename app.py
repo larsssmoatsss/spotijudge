@@ -31,6 +31,11 @@ def home():
     if "track_index" not in session:
         session["track_index"] = 0  # Start at the first track
 
+    # ensure that structured_tracks is in the session
+    if "structured_tracks" not in session or not session["structured_tracks"]:
+        # if it's not there, or it's empty, initialize it (or handle the error)
+        return "Error: No tracks available to display."
+
     # get the current track data
     current_track = session.get("structured_tracks", [])[session["track_index"]]
 
