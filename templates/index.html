@@ -5,36 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotijudge</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container"></div>
+    <div class="container">
         <h1 class="page-title">spotijudge</h1>
 
         <div class="game-window">
-            <div class="grid-container">
-
-                <div class="left-column">
-                    <h2>hello there {{ username }}!!</h2>
-                    <h3>title: {{ track['track_name'] }}</h3>
-                    <h4>artist: {{ track['artist_name'] }}</h4>
+            <!-- Main RPG Layout -->
+            <div class="rpg-layout">
+                <!-- Character Area (Left) -->
+                <div class="character-area">
+                    <div class="character-image">
+                        <!-- Placeholder character image -->
+                        <div class="placeholder-character">
+                            <p>character placeholder</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="middle-column">
-                    <p><strong>spotify genre tags:</strong> {{ track['genres'] | join(', ') }}</p>
-                    <p><strong>track popularity:</strong> {{ track['track_popularity'] }}%</p>
-                    <p><strong>track cool score:</strong> {{ track['cool_score'] }}%</p>
+                <!-- Track Info Area (Right) -->
+                <div class="track-info-area">
+                    <div class="info-panel">
+                        <h3>track info</h3>
+                        <p><strong>title:</strong> {{ track['track_name'] }}</p>
+                        <p><strong>artist:</strong> {{ track['artist_name'] }}</p>
+                        <p><strong>genres:</strong> {{ track['genres'] | join(', ') }}</p>
+                        <p><strong>popularity:</strong> {{ track['track_popularity'] }}%</p>
+                        <div class="cool-score">
+                            <p><strong>cool score:</strong> {{ track['cool_score'] }}%</p>
+                        </div>
+                    </div>
+                    <div class="overall-score">
+                        <p><strong>overall score:</strong> {{ final_score }}%</p>
+                        <p><strong>progress:</strong> track {{ session['track_index'] + 1 }}/{{ tracks|length }}</p>
+                    </div>
                 </div>
 
-                <div class="right-column">
-                    <h1>your final cool score: {{ final_score }}%</h1>
+                <div class="dialogue-box">
+                    <p class="dialogue-text">what's up, {{ username }}! i'm your spotijudge. i'm gonna be reviewing your top tracks from spotify.</p>
+                    <form method="POST" id="next-form">
+                        <div class="dialogue-indicator" id="next-indicator">▼</div>
+                    </form>
                 </div>
-            </div>
 
-            <div class="continue-button">
-                <form method="POST">
-                    <button type="submit">next track</button>
-                </form>
-            </div>
+        
+        </div>
     </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
