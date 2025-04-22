@@ -89,13 +89,13 @@ def login():
 # callback route, this route is called after the user logs in and grants access
 @app.route("/callback")
 def callback():
-    # Get the authorization code from the callback URL
+    # get the authorization code from the callback URL
     code = request.args.get("code")
     if code is None:
         return "No code found in callback :("
     print("Received code from Spotify:", code)
 
-    # Get access token using the authorization code
+    # get access token using the authorization code
     token_url = "https://accounts.spotify.com/api/token"
     auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
     token_headers = {
@@ -108,7 +108,7 @@ def callback():
         "redirect_uri": REDIRECT_URI
     }
 
-    # Send token request
+    # send token request
     token_response = requests.post(token_url, data=token_data, headers=token_headers)
     if token_response.status_code != 200:
         print("Failed to get token:", token_response.text)
@@ -122,7 +122,7 @@ def callback():
         "Authorization": f"Bearer {access_token}"
     }
 
-    # Get user profile info
+    # get user profile info
     profile_url = "https://api.spotify.com/v1/me"
     profile_response = requests.get(profile_url, headers=api_headers)
     if profile_response.status_code == 200:
@@ -133,18 +133,18 @@ def callback():
         username = "there"
         print(f"\nHi, {username}!! Welcome to Spotijudge!")
 
-    # Save username in session
+    # save username in session
     session["username"] = username
 
-    # Get the user's top 20 tracks
+    # get the user's top 20 tracks
     tracks_data = requests.get("https://api.spotify.com/v1/me/top/tracks?limit=20", headers=api_headers).json()
 
-    # Get the user's top 20 artists
+    # get the user's top 20 artists
     top_artists_data = requests.get("https://api.spotify.com/v1/me/top/artists?limit=20", headers=api_headers).json()
     top_artists = top_artists_data["items"]
     top_artist_names = set(artist["name"] for artist in top_artists)
 
-    # Collect artist metadata (genres, popularity, followers)
+    # collect artist metadata (genres, popularity, followers)
     artist_ids = list(set([item["artists"][0]["id"] for item in tracks_data["items"]]))
     artist_meta = {}
 
@@ -164,7 +164,7 @@ def callback():
             "followers": artist_data["followers"]["total"]
         }
 
-    # Define cool genres based on what I like (just for fun)
+    # define cool genres just based on what i like cause its funny as hell
     cool_genres = [
         "deathcore", "grindcore", "post-hardcore", "art pop", "experimental", "metal", "death metal", "metalcore",
         "black metal", "emo", "midwest emo", "djent", "math rock", "experimental hip hop", "hardcore", "hardcore punk",
@@ -176,12 +176,15 @@ def callback():
         "alternative hip-hop", "doom metal", "post-metal", "idm", "mathcore", "horrorcore", "hyperpop", "dark ambient",
         "ambient", "proto-punk", "house", "downtempo", "atmospheric black metal", "goregrind", "pornogrind", "trance",
         "breakcore", "jazz", "sludge metal", "emo pop", "rage rap", "rage", "folk punk", "industrial", "art rock",
-        "neofolk", "skate punk", "jazz fusion", "jazz funk", "space rock"
+        "neofolk", "skate punk", "jazz fusion", "jazz funk", "space rock", "big beat", "breakbeat", "hardcore techno", 
+        "disco", "hi-nrg", "french house", "electronica", "electro", "ebm", "alternative rock", "progressive rock", "progressive metal",
+        "punk", "groove metal", "heavy metal", "grunge", "speed metal", "hip hop", "east coast hip hop", "southern hip hop", "rap", "jazz rap", "garage rock",
+        "indie punk", "soundtrack", "ska punk", "cloud rap", "gangster rap", "memphis rap", "madchester", "dark trap", "crunk", "underground rap", "undeground hip hop", 
     ]
 
     structured_tracks = []
 
-    # Loop through the tracks and calculate cool score
+    # loop through the tracks and calculate cool score
     for item in tracks_data["items"]:
         artist_id = item["artists"][0]["id"]
         artist_data = artist_meta.get(artist_id, {})
@@ -258,7 +261,7 @@ def callback():
             "genres": genres
         })
 
-    # Save structured tracks to session
+    # save structured tracks to session
     session["structured_tracks"] = structured_tracks
 
     return redirect("/")

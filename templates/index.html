@@ -12,19 +12,19 @@
         <h1 class="page-title">spotijudge</h1>
 
         <div class="game-window">
-            <!-- Main RPG Layout -->
+            <!-- main RPG layout -->
             <div class="rpg-layout">
-                <!-- Character Area (Left) -->
+                <!-- character area (left) -->
                 <div class="character-area">
                     <div class="character-image">
-                        <!-- Placeholder character image -->
+                        <!-- placeholder character image -->
                         <div class="placeholder-character">
-                            <p>character placeholder</p>
+                            <img src="{{ url_for('static', filename='images/fantanogreen.png') }}" alt="fantano image">
                         </div>
                     </div>
                 </div>
 
-                <!-- Track Info Area (Right) -->
+                <!-- track info area (right) -->
                 <div class="track-info-area">
                     <div class="info-panel">
                         <h3>track info</h3>
@@ -37,8 +37,8 @@
                         </div>
                     </div>
                     <div class="overall-score">
-                        <p><strong>overall score:</strong> {{ final_score }}%</p>
-                        <p><strong>progress:</strong> track {{ session['track_index'] + 1 }}/{{ tracks|length }}</p>
+                        <p class="score-value"><strong>overall score:</strong> {{ final_score }}%</p>
+                        <p class="progress-info"><strong>progress:</strong> track {{ session['track_index'] + 1 }}/{{ tracks|length }}</p>
                     </div>
                 </div>
 
