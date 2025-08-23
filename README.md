@@ -179,10 +179,10 @@ This is a personal learning project showcasing full-stack development skills. Fe
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the [MIT License](https://opensource.org/license/mit).
 
 ---
 
-**Built with 🎵 by Lars Moats** | *Demonstrating full-stack development, API integration, and creative, fun algorithm design*
+**Built with care by Lars Moats** | *Demonstrating full-stack development, API integration, and creative, fun algorithm design*
 
 *Connect with me on [LinkedIn](https://www.linkedin.com/in/larsmoats/)*
