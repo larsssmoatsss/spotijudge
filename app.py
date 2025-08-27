@@ -178,38 +178,79 @@ def landing():
 # Route: Review page - displays track analysis interface
 @app.route("/review", methods=["GET", "POST"])
 def review():
-    # Redirect to review if no tracks available
+    # Redirect to login if no tracks available
     if "structured_tracks" not in session or not session["structured_tracks"]:
         return redirect("/login")
     
-    # Initialize track index if not present
-    if "track_index" not in session:
+    # Reset track index if it's out of bounds (happens when coming back from results)
+    if "track_index" not in session or session["track_index"] >= len(session["structured_tracks"]):
         session["track_index"] = 0
     
     # Handle "next track" button
     if request.method == "POST":
         session["track_index"] += 1
         if session["track_index"] >= len(session["structured_tracks"]):
-            session["track_index"] = 0  # Loop back to beginning
+            return redirect("/results")  # Go to results instead of looping
         return redirect("/review")
     
     # Get current track data
     current_track = session["structured_tracks"][session["track_index"]]
     
-    # Calculate overall score (only from scored tracks)
+    return render_template(
+        'index.html', 
+        track=current_track, 
+        username=session.get("username", "there"),
+        tracks=session["structured_tracks"]
+    )
+
+# Route: Results page - displays final score and track breakdown
+@app.route("/results")
+def results():
+    # Redirect to login if no tracks available
+    if "structured_tracks" not in session or not session["structured_tracks"]:
+        return redirect("/login")
+    
+    # Calculate final statistics
     scored_tracks = [track for track in session["structured_tracks"] if track.get("is_scored", False)]
+    unscored_count = session.get("unscored_count", 0)
+    
     if scored_tracks:
         total_score = sum(track.get("cool_score", 0) for track in scored_tracks)
         final_score = round(total_score / len(scored_tracks), 2)
     else:
         final_score = 0.0
     
+    # Generate score-based commentary
+    def get_score_commentary(score):
+        if score >= 90:
+            return "absolutely legendary taste! you're discovering the underground gems that matter."
+        elif score >= 80:
+            return "solid taste! you've got a good ear for quality music outside the mainstream."
+        elif score >= 70:
+            return "decent taste, but there's room for exploration in more underground territory."
+        elif score >= 60:
+            return "you're on the right track, but could dive deeper into more experimental sounds."
+        elif score >= 50:
+            return "pretty mainstream taste, but everyone starts somewhere. time to explore!"
+        else:
+            return "very mainstream taste detected. let's work on finding some hidden gems."
+    
+    commentary = get_score_commentary(final_score)
+    
+    # Sort tracks by score for display (scored tracks first, then unscored)
+    scored_sorted = sorted(scored_tracks, key=lambda x: x.get("cool_score", 0), reverse=True)
+    unscored_tracks = [track for track in session["structured_tracks"] if not track.get("is_scored", False)]
+    all_tracks_sorted = scored_sorted + unscored_tracks
+    
     return render_template(
-        'index.html', 
-        track=current_track, 
-        final_score=final_score, 
-        username=session.get("username", "there"),
-        tracks=session["structured_tracks"]
+        'results.html',
+        final_score=final_score,
+        commentary=commentary,
+        tracks=all_tracks_sorted,
+        total_tracks=len(session["structured_tracks"]),
+        scored_count=len(scored_tracks),
+        unscored_count=unscored_count,
+        username=session.get("username", "there")
     )
 
 

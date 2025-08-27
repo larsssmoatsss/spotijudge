@@ -205,7 +205,8 @@ body {
     max-width: 80%;
     margin-left: auto;
     margin-right: auto;
-    text-shadow: 2px 2px 0px #000;
+    text-shadow: 3px 3px 0px #000, 6px 6px 10px rgba(29,185,84,0.5);
+    animation: glow 2s ease-in-out infinite alternate;
 }
 
 /* Container for title and game window */
@@ -320,6 +321,20 @@ body {
     margin-bottom: 10px;
 }
 
+.track-progress {
+    flex: 1;
+    text-align: left;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #1db954;
+}
+
+.track-progress .progress-info {
+    font-size: 0.7rem;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
 .cool-score {
     margin-top: 10px;
     padding: 5px;
@@ -365,6 +380,309 @@ body {
     50% { transform: translateY(-5px); }
 }
 
+/* Results Page Styles */
+.results-window {
+    background-color: #212121;
+    width: 90%;
+    max-width: 1000px;
+    padding: 30px;
+    border-radius: 10px;
+    border: 4px solid #1db954;
+    box-shadow: 0 4px 6px black, inset 0 0 10px rgba(29, 185, 84, 0.5);
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
+/* Final Score Section */
+.final-score-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: rgba(29, 185, 84, 0.1);
+    border: 2px solid #1db954;
+    border-radius: 10px;
+}
+
+.score-display {
+    text-align: center;
+}
+
+.final-score {
+    font-size: 4rem;
+    color: #1db954;
+    text-shadow: 3px 3px 0px #000;
+    margin: 0;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.score-label {
+    font-size: 1rem;
+    color: #fff;
+    margin: 5px 0;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.character-commentary {
+    display: flex;
+    align-items: center;
+    max-width: 60%;
+}
+
+.character-image-small {
+    margin-right: 15px;
+}
+
+.character-image-small img {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #1db954;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+.commentary-box {
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 2px solid #1db954;
+    border-radius: 10px;
+    padding: 15px;
+    position: relative;
+}
+
+.commentary-text {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0 0 10px 0;
+    color: #fff;
+}
+
+.character-signature {
+    font-size: 0.6rem;
+    color: #1db954;
+    margin: 0;
+    text-align: right;
+    font-style: italic;
+}
+
+/* Statistics Section */
+.stats-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 2px solid #1db954;
+    border-radius: 10px;
+}
+
+.stats-section h3 {
+    color: #1db954;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    color: #1db954;
+    text-shadow: 2px 2px 0px #000;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: #ccc;
+    margin-top: 5px;
+}
+
+/* Track List Section */
+.tracklist-section {
+    margin-bottom: 30px;
+}
+
+.tracklist-section h3 {
+    color: #1db954;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.tracks-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 2px solid #1db954;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Custom scrollbar styling */
+.tracks-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.tracks-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.tracks-container::-webkit-scrollbar-thumb {
+    background: #1db954;
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+.tracks-container::-webkit-scrollbar-thumb:hover {
+    background: #1ed760;
+}
+
+.track-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(29, 185, 84, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.track-item:last-child {
+    border-bottom: none;
+}
+
+.track-item.unscored {
+    opacity: 0.6;
+}
+
+.track-info {
+    flex: 1;
+}
+
+.track-title {
+    font-size: 0.8rem;
+    color: #fff;
+    margin: 0 0 4px 0;
+    font-weight: bold;
+}
+
+.track-artist {
+    font-size: 0.7rem;
+    color: #1db954;
+    margin: 0 0 4px 0;
+}
+
+.track-details {
+    font-size: 0.6rem;
+    color: #ccc;
+}
+
+.track-details span {
+    margin-right: 15px;
+}
+
+.track-score {
+    text-align: right;
+    min-width: 80px;
+}
+
+.score-value {
+    font-size: 1.2rem;
+    color: #1db954;
+    font-weight: bold;
+    text-shadow: 1px 1px 0px #000;
+}
+
+.no-score {
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+}
+
+/* Action Buttons */
+.results-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.action-button {
+    display: inline-block;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    border: 2px solid #1db954;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.action-button.primary {
+    background: linear-gradient(45deg, #1db954, #1ed760);
+    color: #000;
+}
+
+.action-button.primary:hover {
+    background: linear-gradient(45deg, #1ed760, #1db954);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(29,185,84,0.4);
+}
+
+.action-button.secondary {
+    background-color: transparent;
+    color: #1db954;
+}
+
+.action-button.secondary:hover {
+    background-color: rgba(29, 185, 84, 0.1);
+    transform: translateY(-2px);
+}
+
+.action-button.disabled {
+    background-color: #333;
+    color: #666;
+    cursor: not-allowed;
+    border-color: #666;
+}
+
+.action-button.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Results Footer */
+.results-footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(29, 185, 84, 0.3);
+}
+
+.results-footer p {
+    margin: 5px 0;
+    color: #ccc;
+}
+
+.results-footer .footer-note {
+    font-size: 0.6rem;
+    color: #888;
+    font-style: italic;
+}
+
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .rpg-layout {
@@ -384,5 +702,45 @@ body {
     .placeholder-character {
         width: 150px;
         height: 200px;
+    }
+    
+    .final-score-section {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .character-commentary {
+        max-width: 100%;
+        margin-top: 20px;
+        justify-content: center;
+    }
+    
+    .final-score {
+        font-size: 3rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .results-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-button {
+        width: 200px;
+        text-align: center;
+    }
+    
+    .track-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .track-score {
+        align-self: flex-end;
     }
 }

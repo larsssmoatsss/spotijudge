@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotijudge - Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">spotijudge results</h1>
+
+        <div class="results-window">
+            <!-- Final Score Display -->
+            <div class="final-score-section">
+                <div class="score-display">
+                    <h2 class="final-score">{{ final_score }}%</h2>
+                    <p class="score-label">final cool score</p>
+                </div>
+                
+                <div class="character-commentary">
+                    <div class="character-image-small">
+                        <img src="{{ url_for('static', filename='images/fantanogreen.png') }}" alt="fantano">
+                    </div>
+                    <div class="commentary-box">
+                        <p class="commentary-text">"{{ commentary }}"</p>
+                        <p class="character-signature">- your spotijudge</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Summary -->
+            <div class="stats-section">
+                <h3>breakdown</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ scored_count }}</span>
+                        <span class="stat-label">tracks scored</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ unscored_count }}</span>
+                        <span class="stat-label">no genre data</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ total_tracks }}</span>
+                        <span class="stat-label">total tracks</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complete Track List -->
+            <div class="tracklist-section">
+                <h3>your top 20 tracks</h3>
+                <div class="tracks-container">
+                    {% for track in tracks %}
+                    <div class="track-item {% if not track.is_scored %}unscored{% endif %}">
+                        <div class="track-info">
+                            <p class="track-title">{{ track.track_name }}</p>
+                            <p class="track-artist">{{ track.artist_name }}</p>
+                            <div class="track-details">
+                                <span class="popularity">popularity: {{ track.track_popularity }}%</span>
+                                {% if track.genres %}
+                                    <span class="genres">{{ track.genres[:2] | join(', ') }}{% if track.genres|length > 2 %}...{% endif %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="track-score">
+                            {% if track.is_scored %}
+                                <span class="score-value">{{ track.cool_score }}%</span>
+                            {% else %}
+                                <span class="no-score">no score</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="results-actions">
+                <a href="/review" class="action-button secondary">
+                    <span class="button-text">review again</span>
+                </a>
+                <div class="action-button primary disabled">
+                    <span class="button-text">share results (coming soon)</span>
+                </div>
+                <a href="/" class="action-button secondary">
+                    <span class="button-text">start over</span>
+                </a>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="results-footer">
+                <p>thanks for using spotijudge, {{ username }}!</p>
+                <p class="footer-note">scoring based on genre diversity, artist popularity, and underground appeal</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate the final score on load
+            const scoreElement = document.querySelector('.final-score');
+            if (scoreElement) {
+                scoreElement.style.opacity = '0';
+                setTimeout(() => {
+                    scoreElement.style.transition = 'opacity 1s ease-in';
+                    scoreElement.style.opacity = '1';
+                }, 500);
+            }
+
+            // Add hover effects to track items
+            const trackItems = document.querySelectorAll('.track-item');
+            trackItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(29, 185, 84, 0.1)';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
