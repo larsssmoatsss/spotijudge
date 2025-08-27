@@ -191,9 +191,13 @@ def home():
     # Get current track data
     current_track = session["structured_tracks"][session["track_index"]]
     
-    # Calculate overall score
-    total_score = sum(track.get("cool_score", 0) for track in session["structured_tracks"])
-    final_score = round(total_score / len(session["structured_tracks"]), 2)
+    # Calculate overall score (only from scored tracks)
+    scored_tracks = [track for track in session["structured_tracks"] if track.get("is_scored", False)]
+    if scored_tracks:
+        total_score = sum(track.get("cool_score", 0) for track in scored_tracks)
+        final_score = round(total_score / len(scored_tracks), 2)
+    else:
+        final_score = 0.0
     
     return render_template(
         'index.html', 
@@ -260,22 +264,36 @@ def callback():
     
     # Process tracks and calculate scores
     structured_tracks = []
+    unscored_count = 0
+    
     for track_item in tracks_data["items"]:
         artist_id = track_item["artists"][0]["id"]
         artist_data = artist_metadata.get(artist_id, {})
         
-        cool_score = calculate_cool_score(track_item, artist_metadata)
+        # Check if track has genres for scoring
+        has_genres = artist_data.get("genres") and len(artist_data.get("genres", [])) > 0
+        
+        if has_genres:
+            cool_score = calculate_cool_score(track_item, artist_metadata)
+            is_scored = True
+        else:
+            cool_score = None  # No score for genre-less tracks
+            unscored_count += 1
+            is_scored = False
+            print(f"Track with no genres (unscored): {track_item['name']} by {track_item['artists'][0]['name']}")
         
         structured_tracks.append({
             "track_name": track_item["name"],
             "artist_name": artist_data.get("name", track_item["artists"][0]["name"]),
             "track_popularity": track_item["popularity"],
             "cool_score": cool_score,
-            "genres": artist_data.get("genres", [])
+            "genres": artist_data.get("genres", []) if has_genres else [],
+            "is_scored": is_scored
         })
     
     # Save processed data to session
     session["structured_tracks"] = structured_tracks
+    session["unscored_count"] = unscored_count  # Store for display
     session["track_index"] = 0  # Start at first track
     
     return redirect("/")

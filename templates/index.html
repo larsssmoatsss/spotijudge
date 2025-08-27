@@ -30,10 +30,20 @@
                         <h3>track info</h3>
                         <p><strong>title:</strong> {{ track['track_name'] }}</p>
                         <p><strong>artist:</strong> {{ track['artist_name'] }}</p>
-                        <p><strong>genres:</strong> {{ track['genres'] | join(', ') }}</p>
+                        <p><strong>genres:</strong> 
+                        {% if track['is_scored'] %}
+                            {{ track['genres'] | join(', ') }}
+                        {% else %}
+                            <em>no genre data</em>
+                        {% endif %}
+                        </p>
                         <p><strong>popularity:</strong> {{ track['track_popularity'] }}%</p>
                         <div class="cool-score">
-                            <p><strong>cool score:</strong> {{ track['cool_score'] }}%</p>
+                            {% if track['is_scored'] %}
+                                <p><strong>cool score:</strong> {{ track['cool_score'] }}%</p>
+                            {% else %}
+                                <p><strong>cool score:</strong> <em>not scored</em></p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="overall-score">
