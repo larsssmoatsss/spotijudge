@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotijudge - Your Music Taste Critic</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body class="landing-body">
+    <div class="landing-container">
+        <!-- Main Title -->
+        <div class="landing-title">
+            <h1 class="title-main" id="animated-title">spotijudge</h1>
+            <p class="title-subtitle">your personal music taste critic</p>
+        </div>
+
+        <!-- How it works section -->
+        <div class="landing-info">
+            <div class="info-box">
+                <h3>how it works:</h3>
+                <div class="steps">
+                    <p>1. connect your spotify account</p>
+                    <p>2. we analyze your top 20 tracks</p>
+                    <p>3. discover your "cool score"</p>
+                    <p>4. see how your taste measures up</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Character preview -->
+        <div class="landing-character">
+            <div class="character-preview">
+                <img src="{{ url_for('static', filename='images/fantanogreen.png') }}" alt="your music judge">
+                <div class="speech-bubble">
+                    <p>"let's see what your taste is really like..."</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connect button -->
+        <div class="landing-action">
+            <a href="/login" class="connect-button">
+                <span class="button-text">connect with spotify</span>
+            </a>
+            <p class="disclaimer">we only read your top tracks - no posting or playlists modified</p>
+        </div>
+
+        <!-- Footer info -->
+        <div class="landing-footer">
+            <p>built by lars moats</p>
+        </div>
+    </div>
+
+    <script>
+        // Animated title effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const title = document.getElementById('animated-title');
+            const text = title.textContent;
+            title.innerHTML = ''; // Clear existing text
+            
+            // Split text into individual letter spans
+            for (let i = 0; i < text.length; i++) {
+                const span = document.createElement('span');
+                span.textContent = text[i];
+                span.style.display = 'inline-block';
+                span.style.animationDelay = `${i * 0.1}s`; // Stagger the animation
+                span.classList.add('wave-letter');
+                title.appendChild(span);
+            }
+        });
+    </script>
+</body>
+</html>

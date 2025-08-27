@@ -10,6 +10,190 @@ body {
     text-align: center;
 }
 
+/* Landing page specific styles */
+.landing-body {
+    background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.landing-container {
+    max-width: 800px;
+    width: 90%;
+    padding: 20px;
+    text-align: center;
+}
+
+.landing-title {
+    margin-bottom: 30px;
+}
+
+.title-main {
+    font-size: 3.5rem;
+    color: #1db954;
+    text-shadow: 3px 3px 0px #000, 6px 6px 10px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.title-subtitle {
+    font-size: 1rem;
+    color: #ccc;
+    margin: 0;
+    font-style: italic;
+}
+
+@keyframes glow {
+    from { text-shadow: 3px 3px 0px #000, 6px 6px 10px rgba(29,185,84,0.3); }
+    to { text-shadow: 3px 3px 0px #000, 6px 6px 10px rgba(29,185,84,0.8); }
+}
+
+@keyframes wave {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+.wave-letter {
+    animation: wave 2s ease-in-out infinite;
+}
+
+.landing-info {
+    margin: 25px 0;
+}
+
+.info-box {
+    background-color: rgba(0,0,0,0.4);
+    border: 2px solid #1db954;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 15px 0;
+}
+
+.info-box h3 {
+    color: #1db954;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.steps p {
+    font-size: 0.8rem;
+    line-height: 2;
+    margin: 10px 0;
+    color: #fff;
+}
+
+.landing-character {
+    margin: 40px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.character-preview {
+    position: relative;
+    display: inline-block;
+}
+
+.character-preview img {
+    width: 150px;
+    height: auto;
+    border: 3px solid #1db954;
+    border-radius: 10px;
+    background-color: rgba(29,185,84,0.1);
+}
+
+.speech-bubble {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #000;
+    border: 2px solid #1db954;
+    border-radius: 15px;
+    padding: 10px 15px;
+    white-space: nowrap;
+    font-size: 0.6rem;
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #1db954;
+}
+
+.landing-action {
+    margin: 30px 0 20px;
+}
+
+.connect-button {
+    display: inline-block;
+    background: linear-gradient(45deg, #1db954, #1ed760);
+    color: #000;
+    text-decoration: none;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: 3px solid #1db954;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(29,185,84,0.3);
+}
+
+.connect-button:hover {
+    background: linear-gradient(45deg, #1ed760, #1db954);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29,185,84,0.5);
+}
+
+.disclaimer {
+    margin-top: 15px;
+    font-size: 0.5rem;
+    color: #888;
+    font-style: italic;
+}
+
+.landing-footer {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #333;
+}
+
+.landing-footer p {
+    font-size: 0.5rem;
+    color: #666;
+}
+
+/* Responsive design for landing page */
+@media (max-width: 768px) {
+    .title-main {
+        font-size: 2.5rem;
+    }
+    
+    .title-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .landing-container {
+        padding: 20px 15px;
+    }
+    
+    .connect-button {
+        padding: 15px 30px;
+        font-size: 0.9rem;
+    }
+    
+    .speech-bubble {
+        font-size: 0.5rem;
+        padding: 8px 12px;
+    }
+}
+
 /* Page Title Style */
 .page-title {
     text-align: center;
@@ -135,8 +319,6 @@ body {
     color: #fff;
     margin-bottom: 10px;
 }
-
-
 
 .cool-score {
     margin-top: 10px;

@@ -170,10 +170,15 @@ def collect_artist_metadata(tracks_data, api_headers):
     return artist_metadata
 
 
-# Route: Home page - displays track analysis interface
-@app.route("/", methods=["GET", "POST"])
-def home():
-    # Redirect to login if no tracks available
+# Route: Landing page
+@app.route("/")
+def landing():
+    return render_template('landing.html')
+
+# Route: Review page - displays track analysis interface
+@app.route("/review", methods=["GET", "POST"])
+def review():
+    # Redirect to review if no tracks available
     if "structured_tracks" not in session or not session["structured_tracks"]:
         return redirect("/login")
     
@@ -186,7 +191,7 @@ def home():
         session["track_index"] += 1
         if session["track_index"] >= len(session["structured_tracks"]):
             session["track_index"] = 0  # Loop back to beginning
-        return redirect("/")
+        return redirect("/review")
     
     # Get current track data
     current_track = session["structured_tracks"][session["track_index"]]
@@ -296,7 +301,7 @@ def callback():
     session["unscored_count"] = unscored_count  # Store for display
     session["track_index"] = 0  # Start at first track
     
-    return redirect("/")
+    return redirect("/review")
 
 
 if __name__ == "__main__":
