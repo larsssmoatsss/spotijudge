@@ -153,7 +153,7 @@ spotijudge/
 - Interactive UI with smooth navigation
 - Responsive design principles
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 - [ ] Add playlist generation based on scoring recommendations
 - [ ] Implement user comparison features ("whose taste is cooler?")
@@ -164,7 +164,7 @@ spotijudge/
 - [ ] Implement user accounts and score history
 - [ ] Deploy as a public web application
 
-## 📝 What I Learned
+## What I Learned
 
 - **Full-stack Development**: End-to-end web application creation with Flask
 - **API Authentication**: OAuth 2.0 implementation and security best practices
@@ -173,16 +173,16 @@ spotijudge/
 - **UI/UX Design**: Building engaging, themed user interfaces
 - **Session Management**: Handling user state across HTTP requests
 
-## 🤝 Contributing
+## Contributing
 
 This is a personal learning project showcasing full-stack development skills. Feedback and suggestions are welcome! Feel free to open an issue or submit a pull request.
 
-## 📄 License
+## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the [MIT License](https://opensource.org/license/mit).
 
 ---
 
-**Built with 🎵 by Lars Moats** | *Demonstrating full-stack development, API integration, and creative, fun algorithm design*
+**Built with care by Lars Moats** | *Demonstrating full-stack development, API integration, and creative, fun algorithm design*
 
 *Connect with me on [LinkedIn](https://www.linkedin.com/in/larsmoats/)*
