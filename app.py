@@ -1,27 +1,34 @@
-from flask import Flask, redirect, request, render_template, session
-import json
+from flask import Flask, redirect, request, render_template, session, jsonify
 import os
 import base64
 import requests
+from datetime import datetime
+from dotenv import load_dotenv
 
-# Flask: web framework for web apps, routes, http requests etc, creates app
-# json: work with json data files (for config)
-# base64: encode/decode data (for auth header)
-# requests: library for http requests (couldn't pull from spotify api without it)
-# os: operating system interface
+# Import our database models
+from models import (
+    db, init_db, User, AnalysisSession, Artist, Track, TrackAnalysis,
+    get_or_create_user, get_or_create_artist, get_or_create_track
+)
 
-"""---------------------------------------------------------------------------------"""
+# Load environment variables
+load_dotenv()
 
-# Load Spotify API credentials from config file
-with open("config.json") as f:
-    config = json.load(f)
-
-CLIENT_ID = config["SPOTIFY_CLIENT_ID"]
-CLIENT_SECRET = config["SPOTIFY_CLIENT_SECRET"]
-REDIRECT_URI = config["SPOTIFY_REDIRECT_URI"]
-
+# Flask app setup
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Required for using sessions
+
+# Configuration from environment variables
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', os.urandom(24))
+
+# Spotify API credentials from environment
+CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
+REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI')
+
+# Initialize database
+init_db(app)
 
 # Define "cool" genres for scoring algorithm
 COOL_GENRES = [
@@ -128,10 +135,9 @@ def get_spotify_data(access_token):
     
     # Get user profile
     profile_response = requests.get("https://api.spotify.com/v1/me", headers=api_headers)
-    username = "there"  # Default fallback
+    user_data = None
     if profile_response.status_code == 200:
-        profile_data = profile_response.json()
-        username = profile_data.get("display_name", "there")
+        user_data = profile_response.json()
     
     # Get user's top 20 tracks
     tracks_response = requests.get("https://api.spotify.com/v1/me/top/tracks?limit=20", headers=api_headers)
@@ -141,7 +147,7 @@ def get_spotify_data(access_token):
     artists_response = requests.get("https://api.spotify.com/v1/me/top/artists?limit=20", headers=api_headers)
     top_artists_data = artists_response.json()
     
-    return username, tracks_data, top_artists_data
+    return user_data, tracks_data, top_artists_data
 
 
 def collect_artist_metadata(tracks_data, api_headers):
@@ -175,48 +181,84 @@ def collect_artist_metadata(tracks_data, api_headers):
 def landing():
     return render_template('landing.html')
 
+
 # Route: Review page - displays track analysis interface
 @app.route("/review", methods=["GET", "POST"])
 def review():
-    # Redirect to login if no tracks available
-    if "structured_tracks" not in session or not session["structured_tracks"]:
+    # Check if we have a current session
+    if "session_id" not in session:
         return redirect("/login")
     
-    # Reset track index if it's out of bounds (happens when coming back from results)
-    if "track_index" not in session or session["track_index"] >= len(session["structured_tracks"]):
-        session["track_index"] = 0
+    # Get the analysis session from database
+    analysis_session = AnalysisSession.query.get(session["session_id"])
+    if not analysis_session:
+        return redirect("/login")
+    
+    # Get all track analyses for this session, ordered by position
+    track_analyses = TrackAnalysis.query.filter_by(session_id=analysis_session.id).order_by(TrackAnalysis.track_position).all()
+    
+    if not track_analyses:
+        return redirect("/login")
     
     # Handle "next track" button
     if request.method == "POST":
-        session["track_index"] += 1
-        if session["track_index"] >= len(session["structured_tracks"]):
-            return redirect("/results")  # Go to results instead of looping
+        session["track_index"] = session.get("track_index", 0) + 1
+        if session["track_index"] >= len(track_analyses):
+            return redirect("/results")
         return redirect("/review")
     
-    # Get current track data
-    current_track = session["structured_tracks"][session["track_index"]]
+    # Reset track index if it's out of bounds
+    if "track_index" not in session or session["track_index"] >= len(track_analyses):
+        session["track_index"] = 0
+    
+    # Get current track analysis
+    current_analysis = track_analyses[session["track_index"]]
+    
+    # Format the track data for the template (same structure as before)
+    current_track = {
+        "track_name": current_analysis.track.name,
+        "artist_name": current_analysis.track.artist.name,
+        "track_popularity": current_analysis.track.popularity,
+        "cool_score": float(current_analysis.cool_score) if current_analysis.cool_score else None,
+        "genres": current_analysis.track.artist.genres or [],
+        "is_scored": current_analysis.is_scored
+    }
     
     return render_template(
         'index.html', 
         track=current_track, 
-        username=session.get("username", "there"),
-        tracks=session["structured_tracks"]
+        username=analysis_session.user.display_name or "there",
+        tracks=[{"track_name": ta.track.name} for ta in track_analyses]  # Just for count
     )
+
 
 # Route: Results page - displays final score and track breakdown
 @app.route("/results")
 def results():
-    # Redirect to login if no tracks available
-    if "structured_tracks" not in session or not session["structured_tracks"]:
+    # Check if we have a current session
+    if "session_id" not in session:
         return redirect("/login")
     
-    # Calculate final statistics
-    scored_tracks = [track for track in session["structured_tracks"] if track.get("is_scored", False)]
-    unscored_count = session.get("unscored_count", 0)
+    # Get the analysis session from database
+    analysis_session = AnalysisSession.query.get(session["session_id"])
+    if not analysis_session:
+        return redirect("/login")
     
-    if scored_tracks:
-        total_score = sum(track.get("cool_score", 0) for track in scored_tracks)
-        final_score = round(total_score / len(scored_tracks), 2)
+    # Get all track analyses for this session
+    track_analyses = TrackAnalysis.query.filter_by(session_id=analysis_session.id).all()
+    
+    # Calculate statistics
+    scored_analyses = [ta for ta in track_analyses if ta.is_scored and ta.cool_score is not None]
+    unscored_count = len([ta for ta in track_analyses if not ta.is_scored])
+    
+    if scored_analyses:
+        total_score = sum(float(ta.cool_score) for ta in scored_analyses)
+        final_score = round(total_score / len(scored_analyses), 2)
+        
+        # Update the session with final score
+        analysis_session.final_score = final_score
+        analysis_session.completed_at = datetime.utcnow()
+        db.session.commit()
     else:
         final_score = 0.0
     
@@ -238,19 +280,31 @@ def results():
     commentary = get_score_commentary(final_score)
     
     # Sort tracks by score for display (scored tracks first, then unscored)
-    scored_sorted = sorted(scored_tracks, key=lambda x: x.get("cool_score", 0), reverse=True)
-    unscored_tracks = [track for track in session["structured_tracks"] if not track.get("is_scored", False)]
-    all_tracks_sorted = scored_sorted + unscored_tracks
+    scored_sorted = sorted(scored_analyses, key=lambda x: float(x.cool_score), reverse=True)
+    unscored_analyses = [ta for ta in track_analyses if not ta.is_scored]
+    all_analyses_sorted = scored_sorted + unscored_analyses
+    
+    # Format tracks for template
+    tracks = []
+    for ta in all_analyses_sorted:
+        tracks.append({
+            "track_name": ta.track.name,
+            "artist_name": ta.track.artist.name,
+            "track_popularity": ta.track.popularity,
+            "cool_score": float(ta.cool_score) if ta.cool_score else None,
+            "genres": ta.track.artist.genres or [],
+            "is_scored": ta.is_scored
+        })
     
     return render_template(
         'results.html',
         final_score=final_score,
         commentary=commentary,
-        tracks=all_tracks_sorted,
-        total_tracks=len(session["structured_tracks"]),
-        scored_count=len(scored_tracks),
+        tracks=tracks,
+        total_tracks=len(track_analyses),
+        scored_count=len(scored_analyses),
         unscored_count=unscored_count,
-        username=session.get("username", "there")
+        username=analysis_session.user.display_name or "there"
     )
 
 
@@ -302,19 +356,52 @@ def callback():
     api_headers = {"Authorization": f"Bearer {access_token}"}
     
     # Fetch user data from Spotify
-    username, tracks_data, top_artists_data = get_spotify_data(access_token)
-    session["username"] = username
+    user_data, tracks_data, top_artists_data = get_spotify_data(access_token)
+    
+    # Create or get user
+    user = get_or_create_user(
+        spotify_id=user_data["id"],
+        display_name=user_data.get("display_name", "there")
+    )
+    
+    # Create new analysis session
+    analysis_session = AnalysisSession(
+        user_id=user.id,
+        total_tracks=len(tracks_data["items"]),
+        scored_tracks=0,  # Will be updated as we process
+        unscored_tracks=0  # Will be updated as we process
+    )
+    db.session.add(analysis_session)
+    db.session.flush()  # Get the ID without committing
     
     # Collect detailed artist metadata
     artist_metadata = collect_artist_metadata(tracks_data, api_headers)
     
     # Process tracks and calculate scores
-    structured_tracks = []
+    scored_count = 0
     unscored_count = 0
     
-    for track_item in tracks_data["items"]:
+    for position, track_item in enumerate(tracks_data["items"], 1):
         artist_id = track_item["artists"][0]["id"]
         artist_data = artist_metadata.get(artist_id, {})
+        
+        # Create or get artist
+        artist = get_or_create_artist(
+            spotify_id=artist_id,
+            name=artist_data.get("name", track_item["artists"][0]["name"]),
+            genres=artist_data.get("genres", []),
+            popularity=artist_data.get("popularity"),
+            followers=artist_data.get("followers")
+        )
+        
+        # Create or get track
+        track = get_or_create_track(
+            spotify_id=track_item["id"],
+            name=track_item["name"],
+            artist=artist,
+            popularity=track_item["popularity"],
+            explicit=track_item["explicit"]
+        )
         
         # Check if track has genres for scoring
         has_genres = artist_data.get("genres") and len(artist_data.get("genres", [])) > 0
@@ -322,28 +409,53 @@ def callback():
         if has_genres:
             cool_score = calculate_cool_score(track_item, artist_metadata)
             is_scored = True
+            scored_count += 1
         else:
-            cool_score = None  # No score for genre-less tracks
-            unscored_count += 1
+            cool_score = None
             is_scored = False
+            unscored_count += 1
             print(f"Track with no genres (unscored): {track_item['name']} by {track_item['artists'][0]['name']}")
         
-        structured_tracks.append({
-            "track_name": track_item["name"],
-            "artist_name": artist_data.get("name", track_item["artists"][0]["name"]),
-            "track_popularity": track_item["popularity"],
-            "cool_score": cool_score,
-            "genres": artist_data.get("genres", []) if has_genres else [],
-            "is_scored": is_scored
-        })
+        # Create track analysis
+        track_analysis = TrackAnalysis(
+            session_id=analysis_session.id,
+            track_id=track.id,
+            cool_score=cool_score,
+            is_scored=is_scored,
+            track_position=position
+        )
+        db.session.add(track_analysis)
     
-    # Save processed data to session
-    session["structured_tracks"] = structured_tracks
-    session["unscored_count"] = unscored_count  # Store for display
-    session["track_index"] = 0  # Start at first track
+    # Update session with counts
+    analysis_session.scored_tracks = scored_count
+    analysis_session.unscored_tracks = unscored_count
+    
+    # Commit all changes
+    db.session.commit()
+    
+    # Store session ID for navigation
+    session["session_id"] = analysis_session.id
+    session["track_index"] = 0
     
     return redirect("/review")
 
 
+# API Routes (bonus endpoints for portfolio)
+@app.route("/api/sessions/<int:session_id>")
+def api_get_session(session_id):
+    """API endpoint to get session data as JSON"""
+    analysis_session = AnalysisSession.query.get_or_404(session_id)
+    return jsonify(analysis_session.to_dict())
+
+
+@app.route("/api/users/<int:user_id>/sessions")
+def api_get_user_sessions(user_id):
+    """API endpoint to get all sessions for a user"""
+    user = User.query.get_or_404(user_id)
+    sessions = AnalysisSession.query.filter_by(user_id=user_id).order_by(AnalysisSession.created_at.desc()).all()
+    return jsonify([session.to_dict() for session in sessions])
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Bind to 0.0.0.0 so Docker can access it
+    app.run(host="0.0.0.0", port=5000, debug=True)

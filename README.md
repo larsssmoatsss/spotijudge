@@ -2,6 +2,8 @@
 
 A retro-styled web application that analyzes your Spotify listening habits through the lens of music critic culture. Connect your Spotify account to get your music taste "reviewed" with a custom scoring algorithm that judges your musical choices across multiple factors.
 
+Built with Flask, PostgreSQL, and Docker for a production-ready, scalable architecture.
+
 ## Screenshots
 
 ### Landing Page
@@ -21,68 +23,47 @@ A retro-styled web application that analyzes your Spotify listening habits throu
   - Artist and track popularity metrics
   - Follower count tiers
   - Content explicitness
+- **Persistent Data Storage**: PostgreSQL database with full data persistence
+- **Containerized Architecture**: Docker and Docker Compose for consistent environments
+- **RESTful API**: JSON endpoints for programmatic access to user data
 - **Retro Gaming Interface**: Pixel-art inspired UI with interactive dialogue system
 - **Three-Page User Flow**: Landing page → Track-by-track reviews → Comprehensive results
 - **Suspenseful Experience**: Individual track scores revealed during review, final score saved for dramatic results page
-- **Session-based Navigation**: Persistent state management for seamless browsing
+- **Session Management**: Database-backed sessions with user history
 - **Custom Visual Elements**: Themed scrollbars, glowing titles, and hover effects
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Technologies Used
 
-- **Backend**: Python 3.7+, Flask
+- **Backend**: Python 3.9+, Flask, SQLAlchemy
+- **Database**: PostgreSQL 15 with array and UUID support
+- **Containerization**: Docker, Docker Compose
 - **Frontend**: HTML5, CSS3, JavaScript
 - **API**: Spotify Web API (OAuth 2.0)
+- **Configuration**: Environment variables with python-dotenv
 - **Styling**: Custom CSS with Google Fonts (Press Start 2P)
-- **Session Management**: Flask sessions for state persistence
+- **Development**: Hot reload, health checks, persistent volumes
 
 ## How It Works
 
-1. **Authentication**: Users authenticate via Spotify OAuth
+1. **Authentication**: Users authenticate via Spotify OAuth 2.0
 2. **Data Collection**: App fetches user's top 20 tracks and detailed artist information
-3. **Track-by-Track Review**: Users cycle through individual tracks with personalized scoring
-4. **Scoring Algorithm**: Each track receives a "cool score" based on:
+3. **Database Storage**: All user data, tracks, and artist information cached in PostgreSQL
+4. **Track-by-Track Review**: Users cycle through individual tracks with personalized scoring
+5. **Scoring Algorithm**: Each track receives a "cool score" based on:
    - **Genre Bonus**: +50 points for "cool" genres (metal, experimental, underground hip-hop, etc.)
    - **Popularity Scaling**: Lower popularity = higher score (rewards discovering underground music)
    - **Artist Followers**: Fewer followers = bonus points (supports smaller artists)
    - **Track Popularity**: Less mainstream tracks score higher
    - **Explicit Content**: +5 point bonus
-5. **Results Revelation**: Final page reveals overall score with commentary and complete track breakdown
-6. **Navigation Options**: Review tracks again or start completely over
-
-## User Experience Flow
-
-### Landing Page
-- Animated title with wave effects
-- Clear explanation of the review process
-- Character preview with speech bubble
-- Spotify connection with privacy disclaimer
-
-### Review Interface
-- RPG-style layout with character and track info panels
-- Individual track details including genres and popularity
-- Cool score for each track (or "not scored" for tracks without genre data)
-- Progress indicator showing current position
-- Interactive dialogue system with clickable progression
-
-### Results Page
-- Dramatic score reveal with pulsing animation
-- Music critic-style commentary based on final score:
-  - 90%+: "absolutely legendary taste!"
-  - 80-89%: "solid taste!"
-  - 70-79%: "decent taste, but room for exploration"
-  - 60-69%: "on the right track"
-  - 50-59%: "pretty mainstream, time to explore"
-  - <50%: "very mainstream, let's find hidden gems"
-- Statistics breakdown (scored vs unscored tracks)
-- Complete scrollable tracklist sorted by score
-- Navigation options to review again or start over
+6. **Results Revelation**: Final page reveals overall score with commentary and complete track breakdown
+7. **Persistent Storage**: All analysis sessions saved with ability to view history
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.7 or higher
+- Docker and Docker Compose
 - Spotify account (free or premium)
 - Spotify Developer App credentials
 
@@ -94,35 +75,72 @@ A retro-styled web application that analyzes your Spotify listening habits throu
    cd spotijudge
    ```
 
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set up Spotify Developer App**
+2. **Set up Spotify Developer App**
    - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
    - Create a new app
    - Add `http://localhost:5000/callback` to Redirect URIs
    - Note your Client ID and Client Secret
 
-4. **Configure credentials**
-   - Copy `config.example.json` to `config.json`
+3. **Configure environment variables**
+   - Copy `.env.example` to `.env`
    - Fill in your Spotify API credentials:
-   ```json
-   {
-       "SPOTIFY_CLIENT_ID": "your_client_id_here",
-       "SPOTIFY_CLIENT_SECRET": "your_client_secret_here", 
-       "SPOTIFY_REDIRECT_URI": "http://localhost:5000/callback"
-   }
-   ```
-
-5. **Run the application**
    ```bash
-   python app.py
+   cp .env.example .env
+   # Edit .env with your actual credentials
    ```
 
-6. **Open your browser**
+4. **Run with Docker**
+   ```bash
+   docker-compose up --build
+   ```
+
+5. **Open your browser**
    Navigate to `http://localhost:5000`
+
+### Local Development
+
+The application runs in development mode with:
+- Hot reload for code changes
+- Debug mode enabled
+- PostgreSQL with persistent data volumes
+- Redis for future session enhancements
+
+## API Endpoints
+
+The application provides RESTful API endpoints for programmatic access:
+
+### User Sessions
+- `GET /api/sessions/{session_id}` - Get detailed session data
+- `GET /api/users/{user_id}/sessions` - Get all sessions for a user
+
+### Example Response
+```json
+{
+  "id": 1,
+  "session_uuid": "550e8400-e29b-41d4-a716-446655440000",
+  "final_score": 87.5,
+  "total_tracks": 20,
+  "scored_tracks": 18,
+  "unscored_tracks": 2,
+  "created_at": "2025-09-22T17:10:08.000Z",
+  "completed_at": "2025-09-22T17:15:30.000Z"
+}
+```
+
+## Database Schema
+
+### Core Tables
+- **users**: Spotify user profiles and metadata
+- **analysis_sessions**: Individual analysis runs with scores and statistics
+- **artists**: Cached artist data with genres, popularity, and follower counts
+- **tracks**: Track information linked to artists
+- **track_analyses**: Individual track scores for each session
+
+### Key Features
+- **Data persistence**: All user sessions and scores saved permanently
+- **Artist caching**: Reduces Spotify API calls by storing artist metadata
+- **Session tracking**: Users can review their analysis history
+- **Referential integrity**: Proper foreign key relationships and cascading deletes
 
 ## Scoring System
 
@@ -145,92 +163,91 @@ The "cool score" algorithm evaluates tracks on multiple criteria:
 - **Explicit Content**: 5 point bonus
 - **Maximum Score**: 100 points per track
 
-## Design Features
+## Architecture
 
-- **Retro Gaming Aesthetic**: Inspired by classic RPG dialogue systems
-- **Custom Character**: Temporary placeholder sprite (final artwork planned)
-- **Interactive Elements**: Clickable dialogue progression with hover effects
-- **Responsive Grid Layout**: Adapts to different screen sizes
-- **Typography**: Press Start 2P font for authentic retro feel
-- **Color Scheme**: Dark theme with Spotify green accents (#1db954)
-- **Custom Scrollbars**: Themed scrollbars matching the green aesthetic
-- **Animated Elements**: Glowing titles, pulsing scores, and smooth transitions
+### Containerized Services
+- **web**: Flask application with SQLAlchemy ORM
+- **db**: PostgreSQL 15 with custom initialization
+- **redis**: Redis for session storage and caching (optional)
+
+### Development Features
+- **Volume mounting**: Live code reloading during development
+- **Health checks**: Automatic service dependency management
+- **Environment isolation**: Consistent development environments
+- **Database persistence**: Data survives container restarts
+
+## Deployment
+
+The application is designed for easy deployment to cloud platforms:
+
+### Supported Platforms
+- **Railway**: Automatic Docker deployment with PostgreSQL addon
+- **Heroku**: Container deployment with Heroku Postgres
+- **DigitalOcean App Platform**: Docker-based deployment
+- **AWS ECS/Fargate**: Container orchestration at scale
+
+### Environment Variables
+All configuration via environment variables for 12-factor app compliance.
 
 ## Project Structure
 
 ```
 spotijudge/
 │
-├── app.py                    # Main Flask application and scoring logic
-├── config.json              # Spotify API credentials (gitignored)
-├── config.example.json      # Configuration template
-├── requirements.txt         # Python dependencies
-├── .gitignore              # Git ignore rules
+├── app.py                    # Main Flask application
+├── models.py                 # SQLAlchemy database models
+├── requirements.txt          # Python dependencies
+├── Dockerfile               # Container build instructions
+├── docker-compose.yml       # Multi-service orchestration
+├── .env.example             # Environment variable template
+│
+├── database/
+│   └── init.sql             # PostgreSQL initialization
 │
 ├── static/
-│   ├── styles.css          # Complete UI styling
-│   ├── script.js           # Frontend interactivity
-│   └── images/
-│       ├── fantanogreen.png # Temporary character sprite (placeholder)
-│       ├── spotijudge_landing.png # Landing page screenshot
-│       ├── spotijudge_review.png # Review interface screenshot
-│       └── spotijudge_results.png # Results page screenshot
+│   ├── styles.css           # Complete UI styling
+│   ├── script.js            # Frontend interactivity
+│   └── images/              # Screenshots and assets
 │
 └── templates/
-    ├── landing.html        # Landing page with animated elements
-    ├── index.html          # Review interface
-    └── results.html        # Final results page
+    ├── landing.html         # Landing page
+    ├── index.html           # Review interface
+    └── results.html         # Results page
 ```
 
 ## Technical Highlights
 
 ### OAuth Implementation
-- Complete Spotify OAuth 2.0 flow
-- Secure token exchange and session management
+- Complete Spotify OAuth 2.0 flow with secure token exchange
 - Proper scope handling for user data access
+- Environment-based credential management
 
-### Data Processing
-- Multiple API calls for comprehensive user analysis
-- Artist metadata aggregation and caching
-- Complex scoring algorithm with weighted factors
+### Database Architecture
+- PostgreSQL with advanced features (arrays, UUIDs, triggers)
+- Efficient artist metadata caching to reduce API calls
+- Proper indexing for query performance
+- Data integrity with foreign key constraints
 
-### Frontend Architecture
-- Session-based state management
-- Interactive UI with smooth navigation
-- Responsive design principles
-- Custom CSS animations and effects
+### Containerization
+- Multi-stage Docker builds for optimized images
+- Docker Compose orchestration with health checks
+- Development and production configurations
+- Persistent data volumes
 
-### User Experience Design
-- Suspenseful score revelation system
-- Clear progress indicators
-- Error handling and user feedback
-- Mobile-optimized interface
-
-## Future Enhancements
-
-- [ ] Add playlist generation based on scoring recommendations
-- [ ] Implement user comparison features ("whose taste is cooler?")
-- [ ] Add detailed analytics and visualization charts
-- [ ] Create shareable results with social media integration
-- [ ] Expand genre classification system
-- [ ] Add audio preview integration
-- [ ] Implement user accounts and score history
-- [ ] Deploy as a public web application
-
-## What I Learned
-
-- **Full-stack Development**: End-to-end web application creation with Flask
-- **API Authentication**: OAuth 2.0 implementation and security best practices
-- **Data Analysis**: Creating meaningful metrics from raw API data
-- **Algorithm Development**: Designing scoring systems with multiple weighted variables
-- **UI/UX Design**: Building engaging, themed user interfaces
-- **Session Management**: Handling user state across HTTP requests
-- **Responsive Design**: Creating mobile-friendly web applications
-- **User Experience Flow**: Crafting suspenseful, engaging user journeys
+### API Design
+- RESTful endpoints following standard conventions
+- JSON responses with proper HTTP status codes
+- Structured error handling and validation
 
 ## Contributing
 
-This is a personal learning project showcasing full-stack development skills. Feedback and suggestions are welcome! Feel free to open an issue or submit a pull request.
+This is a personal learning project showcasing full-stack development skills. The codebase demonstrates:
+
+- **Backend Development**: Flask, SQLAlchemy, PostgreSQL
+- **Frontend Development**: Responsive design, interactive UI
+- **DevOps**: Docker containerization, environment management
+- **API Development**: RESTful design, OAuth integration
+- **Database Design**: Relational modeling, performance optimization
 
 ## License
 
@@ -238,6 +255,6 @@ This project is open source and available under the [MIT License](https://openso
 
 ---
 
-**Built with care by Lars Moats** | *Demonstrating full-stack development, API integration, and creative algorithm design*
+**Built by Lars Moats** | *Demonstrating production-ready full-stack development with modern DevOps practices*
 
 *Connect with me on [LinkedIn](https://www.linkedin.com/in/larsmoats/)*
