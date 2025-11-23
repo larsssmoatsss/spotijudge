@@ -4,6 +4,16 @@ A retro-styled web application that analyzes your Spotify listening habits throu
 
 Built with Flask, PostgreSQL, and Docker for a production-ready, scalable architecture.
 
+## Live Demo
+
+**Coming Soon**: `https://spotijudge.onrender.com` (Once deployed, update this link)
+
+## Quick Links
+
+- [GitHub Repository](https://github.com/larsssmoatsss/spotijudge)
+- [Deployment Guide](./DEPLOYMENT.md)
+- [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+
 ## Screenshots
 
 ### Landing Page
@@ -176,11 +186,74 @@ The "cool score" algorithm evaluates tracks on multiple criteria:
 - **Environment isolation**: Consistent development environments
 - **Database persistence**: Data survives container restarts
 
+
 ## Deployment
+
+### Deploying to Render (Recommended)
+
+Render provides free hosting for both the web application and PostgreSQL database.
+
+#### Quick Deploy
+
+1. **Push your code to GitHub** (if not already done)
+   ```bash
+   git push origin master
+   ```
+
+2. **Create a Render Account**
+   - Sign up at [render.com](https://render.com)
+   - Connect your GitHub account
+
+3. **Set Up Spotify Developer App for Production**
+   - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+   - Select your app or create a new one
+   - Add your Render URL to Redirect URIs: `https://your-app-name.onrender.com/callback`
+   - Note your Client ID and Client Secret
+
+4. **Deploy Using Render Blueprint**
+   - In Render Dashboard, click "New" → "Blueprint"
+   - Connect your GitHub repository
+   - Render will automatically detect `render.yaml` and set up:
+     - PostgreSQL database
+     - Web service with Python runtime
+   
+5. **Configure Environment Variables**
+   After deployment is created, add these environment variables in the Render dashboard:
+   - `SPOTIFY_CLIENT_ID`: Your Spotify Client ID
+   - `SPOTIFY_CLIENT_SECRET`: Your Spotify Client Secret
+   - `SPOTIFY_REDIRECT_URI`: `https://your-app-name.onrender.com/callback`
+   - (DATABASE_URL and SECRET_KEY are auto-configured by Render)
+
+6. **Wait for Build & Deploy**
+   - Initial build takes 2-3 minutes
+   - Your app will be live at `https://your-app-name.onrender.com`
+
+#### Manual Deployment (Alternative)
+
+If you prefer manual setup:
+
+1. **Create PostgreSQL Database**
+   - In Render: New → PostgreSQL
+   - Name: `spotijudge-db`
+   - Free tier is sufficient
+   - Save the connection details
+
+2. **Create Web Service**
+   - In Render: New → Web Service
+   - Connect your GitHub repository
+   - Configure:
+     - **Name**: `spotijudge`
+     - **Runtime**: Python 3
+     - **Build Command**: `pip install -r requirements.txt`
+     - **Start Command**: `gunicorn app:app`
+
+3. **Set Environment Variables** (same as above)
+
+### Other Deployment Platforms
 
 The application is designed for easy deployment to cloud platforms:
 
-### Supported Platforms
+#### Supported Platforms
 - **Railway**: Automatic Docker deployment with PostgreSQL addon
 - **Heroku**: Container deployment with Heroku Postgres
 - **DigitalOcean App Platform**: Docker-based deployment
