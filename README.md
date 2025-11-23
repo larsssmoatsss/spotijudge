@@ -6,12 +6,13 @@ Built with Flask, PostgreSQL, and Docker for a production-ready, scalable archit
 
 ## Live Demo
 
-**Coming Soon**: `https://spotijudge.onrender.com` (Once deployed, update this link)
+**[View Live Demo](https://spotijudge.onrender.com)**
+
+> **Note**: This demo is hosted on Render's free tier. The first request may take 30-50 seconds as the service spins up from idle. The free PostgreSQL database expires after 30 days (currently until December 23, 2025), after which the app will no longer be accessible at this URL.
 
 ## Quick Links
 
 - [GitHub Repository](https://github.com/larsssmoatsss/spotijudge)
-- [Deployment Guide](./DEPLOYMENT.md)
 - [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 
 ## Screenshots
@@ -186,7 +187,6 @@ The "cool score" algorithm evaluates tracks on multiple criteria:
 - **Environment isolation**: Consistent development environments
 - **Database persistence**: Data survives container restarts
 
-
 ## Deployment
 
 ### Deploying to Render (Recommended)
@@ -222,6 +222,7 @@ Render provides free hosting for both the web application and PostgreSQL databas
    - `SPOTIFY_CLIENT_ID`: Your Spotify Client ID
    - `SPOTIFY_CLIENT_SECRET`: Your Spotify Client Secret
    - `SPOTIFY_REDIRECT_URI`: `https://your-app-name.onrender.com/callback`
+   - `PYTHON_VERSION`: `3.11.0` (important for compatibility)
    - (DATABASE_URL and SECRET_KEY are auto-configured by Render)
 
 6. **Wait for Build & Deploy**
